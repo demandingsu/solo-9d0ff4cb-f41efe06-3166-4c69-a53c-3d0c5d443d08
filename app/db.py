@@ -44,6 +44,27 @@ CREATE TABLE IF NOT EXISTS coverage (
 );
 CREATE INDEX IF NOT EXISTS idx_coverage_issn ON coverage(issn);
 CREATE INDEX IF NOT EXISTS idx_coverage_pkg  ON coverage(package_id);
+
+CREATE TABLE IF NOT EXISTS articles (
+    doi              TEXT PRIMARY KEY,      -- normalized, lower-cased DOI
+    issn             TEXT NOT NULL,         -- normalized XXXX-XXXX, upper case
+    publication_date TEXT NOT NULL,         -- ISO date
+    status           TEXT NOT NULL DEFAULT 'active'
+                       CHECK (status IN ('active', 'withdrawn')),
+    updated_at       TEXT NOT NULL          -- ISO-8601 UTC timestamp of last write
+);
+CREATE INDEX IF NOT EXISTS idx_articles_issn ON articles(issn);
+CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
+
+CREATE TABLE IF NOT EXISTS article_authors (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    doi       TEXT NOT NULL REFERENCES articles(doi) ON DELETE CASCADE,
+    position  INTEGER NOT NULL,            -- author order as submitted, 0-based
+    author_id TEXT NOT NULL,
+    UNIQUE(doi, position)
+);
+CREATE INDEX IF NOT EXISTS idx_aa_doi    ON article_authors(doi);
+CREATE INDEX IF NOT EXISTS idx_aa_author ON article_authors(author_id);
 """
 
 

@@ -42,3 +42,18 @@ def query(client, issn, date):
     r = client.get("/access", params={"issn": issn, "date": date})
     assert r.status_code == 200, r.text
     return r.json()
+
+
+def put_article(client, doi, issn, pub_date, authors):
+    return client.put(
+        f"/articles/{doi}",
+        json={"issn": issn, "publication_date": pub_date, "authors": authors},
+    )
+
+
+def chain(client, a, b, date_):
+    r = client.get(
+        "/coauthor-chain", params={"author_a": a, "author_b": b, "date": date_}
+    )
+    assert r.status_code == 200, r.text
+    return r.json()
